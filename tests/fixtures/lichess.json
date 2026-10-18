@@ -1,0 +1,4 @@
+{
+  "game": { "pgn": "e4 c5 Bc4 e6 Nc3 a6 a3 b5 Ba2 Bb7 d3 Nf6 Nf3 d5 e5 Nfd7 O-O Nc6 Bf4 d4 Ne4 Be7 Nd6+ Bxd6 exd6 e5 Re1 f6 Nh4 g6 Bg3 Qb6 f4 O-O-O fxe5 Ncxe5 Be6 Qxd6 Bxd7+ Rxd7 Bxe5 fxe5 Nf3 Bxf3 Qxf3 Rf8 Qa8+ Qb8 Qxa6+ Qb7 Qe6 Qd5 Rxe5 Qxe6 Rxe6 Kc7 a4 Ra8 a5 Rd6 Re7+ Rd7 Re5 Kc6 Re6+ Rd6 Re7 Rd7 Re5 Kd6 Re4 Rda7 b4 Kd5 Rae1 cxb4" },
+  "puzzle": { "id": "iUIdn", "initialPly": 75, "fen": "r7/r6p/6p1/Pp1k4/1p1pR3/3P4/2P3PP/4R1K1 w - - 0 1", "solution": ["e4e6", "b4b3", "e1e5"], "themes": ["clearance", "short", "rookEndgame", "blindSwineMate", "endgame", "mateIn2"], "rating": 2106 }
+}

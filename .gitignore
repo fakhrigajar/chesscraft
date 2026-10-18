@@ -1,0 +1,9 @@
+node_modules/
+dist/
+test-results/
+playwright-report/
+.DS_Store
+public/engine/*.js
+public/engine/*.wasm
+public/blockly-media/
+public/licenses/*.txt

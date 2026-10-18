@@ -1,0 +1,6 @@
+[Event "Opening development"]
+[SetUp "1"]
+[FEN "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"]
+[Result "*"]
+
+1. e4 (1. d4 d5 2. Nf3 Nf6) e5 2. Nf3 Nc6 *

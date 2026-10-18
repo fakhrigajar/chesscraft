@@ -1,0 +1,332 @@
+/* The play route is a viewport-sized app. Long move lists and programs scroll
+   inside their panels; the board and execution controls stay on screen. */
+html:has(.play-shell), body:has(.play-shell) {
+  height: 100%;
+  overflow: hidden;
+}
+
+.play-shell {
+  height: 100dvh;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.play-shell .site-header { flex-shrink: 0; }
+.play-shell .site-footer { display: none; }
+.play-shell #main-content { display: flex; flex: 1; flex-direction: column; min-height: 0; outline: none; }
+.play-page {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 12px;
+  flex: 1;
+  min-height: 0;
+  width: calc(100% - 48px);
+  padding: 16px 0 10px;
+}
+.play-page .breadcrumb { display: none; }
+.play-page .lesson-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 20px; margin: 0; min-width: 0; }
+.play-page .lesson-heading > div { min-width: 0; }
+.play-page .lesson-heading h1 { font-size: 28px; margin: 3px 0 4px; }
+.play-page .lesson-heading p { font-size: 12px; line-height: 1.5; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.play-page .lesson-kicker { font-size: 8px; letter-spacing: 1.2px; }
+.play-page .help-button { padding: 8px 0; flex-shrink: 0; }
+.play-page .lesson-levels { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.play-page .lesson-levels .path-level { width: 36px; height: 36px; border: 1px solid #dde4d3; border-radius: 10px; outline: none; background: #edf1e7; color: #647458; font-size: 12px; font-weight: 700; box-shadow: none; }
+.play-page .lesson-levels .path-level:hover { background: #e3ebda; border-color: #9bb58a; }
+.play-page .lesson-levels .path-level.complete { background: #e6eedf; border-color: #cbdac0; color: #46623e; }
+.play-page .lesson-levels .path-level.current { background: #edaa70; border-color: #dc9761; color: #553620; }
+.play-page .lesson-levels .path-level:focus-visible { outline: 3px solid #416347; outline-offset: 3px; z-index: 2; }
+.play-page .game-grid { min-height: 0; grid-template-columns: 25fr 35fr 40fr; gap: 16px; }
+.play-page .game-panel { min-height: 0; position: relative; }
+.play-page .panel-heading { height: 58px; min-height: 0; padding: 10px 16px; }
+.play-page .panel-heading h2 { font-size: 14px; }
+.play-page .panel-heading p { font-size: 9px; margin-top: 3px; }
+.play-page .panel-icon { width: 32px; height: 32px; border-radius: 10px; }
+.play-page .toolbox-body { padding: 13px 14px; min-height: 0; overflow: hidden; }
+.play-page .toolbox-body > :not(.move-options) { flex-shrink: 0; }
+.play-page .piece-picker { gap: 4px; flex-wrap: nowrap; }
+.play-page .piece-tab { padding: 4px 1px; min-width: 35px; }
+.play-page .piece-tab .chess-piece { width: 30px; height: 30px; }
+.play-page .piece-tab span { font-size: 9px; }
+.play-page .toolbox-divider { margin: 11px 0; }
+.play-page .small-eyebrow { margin-bottom: 7px; font-size: 8px; }
+.play-page .selected-piece-card { padding: 8px 9px; gap: 8px; }
+.play-page .selected-piece-card h3 { font-size: 14px; }
+.play-page .selected-piece-card p { margin-top: 3px; font-size: 9px; }
+.play-page .selected-piece-icon { width: 39px; height: 39px; }
+.play-page .selected-piece-icon svg { width: 39px; height: 39px; }
+.play-page .drag-instruction { font-size: 9px; margin: 13px 0 10px; }
+.play-page .move-options { flex: 1 1 auto; min-height: 0; max-height: none; gap: 16px; overflow-y: auto; overscroll-behavior: contain; padding: 6px 3px 8px; }
+.play-page .move-block { min-height: 51px; padding: 8px; gap: 7px; }
+.play-page .move-block > strong { font-size: 13px; }
+.play-page .block-direction.knight-direction { font-size: 14px; }
+.play-page .destination-bubble { font-size: 11px; }
+.play-page .piece-tip { padding: 10px; margin-top: 13px; gap: 9px; }
+.play-page .piece-tip strong { font-size: 10px; }
+.play-page .piece-tip p { font-size: 9px; margin-top: 2px; }
+.play-page .workspace-body { min-height: 0; overflow: hidden; isolation: isolate; background: #fbfcf9; }
+.play-page .workspace-toolbar { flex: 0 0 39px; height: 39px; padding: 5px 12px; }
+.play-page .blockly-area { flex: 1 1 0; min-height: 0; z-index: 1; }
+/* Keep the hint visible through the canvas, with blocks and toolbar above it. */
+.play-page .blockly-area .blocklySvg { background-color: transparent !important; }
+.play-page .workspace-empty { top: 138px; bottom: 18px; justify-content: center; gap: 10px; z-index: 0; }
+.play-page .workspace-empty strong { font-size: 13px; }
+.play-page .workspace-empty span { font-size: 10px; }
+.play-page .workspace-empty svg { width: 94px; height: 47px; }
+.play-page .accessible-program { flex-shrink: 0; max-height: 78px; padding: 4px 13px; overscroll-behavior: contain; }
+.play-page .program-row { min-height: 25px; font-size: 9px; }
+.play-page .detached-note { font-size: 9px; flex-shrink: 0; margin: 6px 13px; }
+.play-page .workspace-controls { flex: 0 0 auto; padding: 0 14px 11px; }
+.play-page .plan-mode-row { padding: 9px 0; }
+.play-page .plan-toggle { font-size: 10px; }
+.play-page .run-button { height: 43px; min-height: 0; font-size: 14px; }
+.play-page .step-button, .play-page .reset-button { height: 43px; }
+.play-page .control-note { font-size: 9px; margin-top: 8px; line-height: 1.4; min-height: 0; }
+.play-page .board-panel-body {
+  min-height: 0;
+  flex: 1;
+  display: grid;
+  grid-template-rows: minmax(0, 1fr);
+  gap: 7px;
+  padding: 10px 15px 12px;
+}
+.play-page .player-label, .play-page .board-bottom-row, .play-page .board-action-row { width: 100%; max-width: none; margin: 0; }
+.play-page .player-label, .play-page .your-turn { font-size: 10px; }
+.play-page .player-label small, .play-page .your-turn small { font-size: 8px; }
+.play-page .player-avatar { width: 27px; height: 27px; border-radius: 8px; }
+.play-page .board-action-row { padding-top: 0; border-top: none; }
+.play-page .hint-button { padding: 7px 10px; min-height: 32px; font-size: 11px; }
+.play-page .side-label { font-size: 9px; }
+.play-page .board-stage { position: relative; min-height: 0; min-width: 0; }
+.play-page .board-stage > .chessboard-frame {
+  position: absolute;
+  width: var(--board-size, 100%);
+  height: var(--board-size, 100%);
+  max-width: none;
+  margin: 0;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 5px;
+}
+.play-page .move-history { margin: 0; padding: 0; max-width: none; flex-wrap: nowrap; overflow: auto; align-items: center; overscroll-behavior: contain; }
+.play-page .move-history > span { flex-shrink: 0; }
+.play-page .feedback-card { margin: 0; min-height: 68px; padding: 11px 20px 11px 92px; gap: 14px; border-radius: 13px; }
+.play-page .feedback-mascot { height: 82px; width: 70px; left: 10px; }
+.play-page .feedback-mascot .mascot { width: 84px; height: 88px; left: -8px; }
+.play-page .feedback-label { margin-bottom: 3px; font-size: 7px; }
+.play-page .feedback-copy { min-width: 0; }
+.play-page .feedback-copy h3 { font-size: 16px; line-height: 1.35; }
+.play-page .feedback-copy p { font-size: 11px; margin-top: 3px; line-height: 1.45; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.play-page .feedback-decor > svg { width: 21px; }
+.play-page .feedback-card .retry-button { padding: 9px 13px; min-height: 36px; font-size: 11px; }
+.play-page .play-footer { margin: 0; min-height: 12px; font-size: 8px; }
+.play-page .engine-status { font-size: 8px; }
+.play-panel-tabs, .mobile-quick-controls { display: none; }
+
+/* Keep Blockly's SVG translate intact: only opacity/highlight are animated. */
+.new-block { animation: block-arrival 160ms ease-out; }
+@keyframes block-arrival { from { opacity: .35; filter: brightness(1.12); } to { opacity: 1; filter: brightness(1); } }
+.play-page .workspace-body.is-dragging { overflow: visible; }
+.play-page .workspace-panel:has(.is-dragging) { overflow: visible; z-index: 20; }
+.workspace-body.is-dragging .blocklySvg { overflow: visible !important; }
+.toolbox-delete-overlay {
+  position: absolute;
+  inset: 8px;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 14px;
+  padding: 25px;
+  text-align: center;
+  background: #fff3e9f5;
+  border: 2px dashed #dba486;
+  border-radius: 13px;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transition: opacity 120ms ease;
+  color: #a2745a;
+}
+.toolbox-delete-overlay > span { width: 66px; height: 66px; display: grid; place-items: center; border-radius: 20px; background: #f7e0cf; }
+.toolbox-delete-overlay strong { font-family: 'Nunito Variable', sans-serif; font-size: 20px; font-weight: 800; }
+.toolbox-delete-overlay p { font-size: 12px; line-height: 1.7; max-width: 190px; }
+.toolbox-panel.delete-drop-active .toolbox-delete-overlay { visibility: visible; opacity: 1; }
+.tab-delete-label { display: none; }
+
+/* Tailwind's reset removes the browser's dialog margin, so set centering
+   explicitly for every modal, including dialogs opened on scrolled pages. */
+.modal {
+  position: fixed;
+  inset: 0;
+  margin: auto;
+  width: max-content;
+  height: fit-content;
+  max-width: min(550px, calc(100vw - 32px));
+  max-height: calc(100dvh - 32px);
+  overflow: hidden;
+}
+.modal .modal-inner { max-height: calc(100dvh - 34px); overflow-y: auto; overscroll-behavior: contain; }
+.modal.completion-modal { width: 440px; }
+
+@media (min-width: 901px) and (max-height: 800px) {
+  .play-page { gap: 8px; padding: 10px 0 8px; }
+  .play-page .lesson-kicker { display: none; }
+  .play-page .lesson-heading h1 { font-size: 25px; margin: 0 0 3px; }
+  .play-page .lesson-heading p { font-size: 11px; -webkit-line-clamp: 1; }
+  .play-page .panel-heading { height: 48px; padding: 8px 13px; }
+  .play-page .panel-heading h2 { font-size: 13px; }
+  .play-page .panel-heading p { font-size: 8px; }
+  .play-page .panel-icon { height: 29px; width: 29px; }
+  .play-page .toolbox-body { padding: 10px 12px; }
+  .play-page .piece-tab .chess-piece { width: 27px; height: 27px; }
+  .play-page .piece-tab span { font-size: 8px; }
+  .play-page .toolbox-divider { margin: 8px 0; }
+  .play-page .small-eyebrow, .play-page .piece-tip { display: none; }
+  .play-page .selected-piece-card { padding: 6px 8px; }
+  .play-page .selected-piece-card h3 { font-size: 12px; }
+  .play-page .selected-piece-icon { width: 33px; height: 33px; }
+  .play-page .selected-piece-icon svg { width: 33px; height: 33px; }
+  .play-page .drag-instruction { font-size: 8px; margin: 10px 0 8px; }
+  .play-page .workspace-controls { padding-bottom: 9px; }
+  .play-page .plan-mode-row { padding: 7px 0; }
+  .play-page .control-note { font-size: 8px; margin-top: 6px; }
+  .play-page .workspace-empty { top: 110px; bottom: 10px; gap: 8px; }
+  .play-page .workspace-empty svg { display: none; }
+  .play-page .workspace-empty strong { font-size: 12px; }
+  .play-page .board-panel-body { padding: 7px 12px 9px; grid-template-rows: minmax(0, 1fr); gap: 5px; }
+  .play-page .player-label small, .play-page .your-turn small { display: none; }
+  .play-page .player-avatar { width: 22px; height: 22px; border-radius: 7px; }
+  .play-page .you-avatar { font-size: 20px; }
+  .play-page .hint-button { min-height: 28px; padding: 5px 9px; font-size: 10px; }
+  .play-page .feedback-card { min-height: 50px; padding: 8px 17px 8px 77px; }
+  .play-page .feedback-mascot { height: 65px; width: 56px; }
+  .play-page .feedback-mascot .mascot { width: 69px; height: 72px; }
+  .play-page .feedback-label { display: none; }
+  .play-page .feedback-copy h3 { font-size: 14px; }
+  .play-page .feedback-copy p { font-size: 10px; -webkit-line-clamp: 1; }
+}
+
+@media (max-width: 1100px) and (min-width: 901px) {
+  .play-page { width: calc(100% - 32px); }
+  .play-page .game-grid { gap: 11px; grid-template-columns: 27fr 35fr 38fr; }
+  .play-page .panel-heading { padding-left: 11px; padding-right: 11px; gap: 7px; }
+  .play-page .panel-heading h2 { font-size: 12px; }
+  .play-page .panel-step { display: none; }
+  .play-page .toolbox-body { padding-left: 10px; padding-right: 10px; }
+  .play-page .move-block { gap: 5px; padding-left: 6px; padding-right: 6px; }
+  .play-page .block-direction.knight-direction { font-size: 12px; }
+  .play-page .move-block .chess-piece { width: 26px; }
+  .play-page .move-block > strong { font-size: 11px; }
+}
+
+@media (max-width: 900px) {
+  .play-page { width: calc(100% - 28px); padding: 10px 0 8px; gap: 9px; grid-template-rows: auto auto minmax(0, 1fr); }
+  .play-page .lesson-heading { grid-template-columns: minmax(0, 1fr) auto; gap: 10px; }
+  .play-page .lesson-copy { grid-column: 1; grid-row: 1; }
+  .play-page .help-button { grid-column: 2; grid-row: 1; }
+  .play-page .lesson-heading h1 { font-size: 24px; }
+  .play-page .lesson-heading p { font-size: 11px; -webkit-line-clamp: 2; }
+  .play-page .lesson-kicker { font-size: 7px; }
+  .play-page .help-button { padding: 10px 0 0; }
+  .play-page .help-button > span { display: none; }
+  .play-page .lesson-levels { grid-column: 1 / -1; grid-row: 2; display: grid; grid-template-columns: repeat(9, minmax(0, 1fr)); gap: 4px; width: min(100%, 400px); justify-self: end; }
+  .play-page .lesson-levels .path-level { width: 100%; height: 40px; }
+  .play-panel-tabs { display: flex; flex-shrink: 0; gap: 5px; border-radius: 11px; padding: 4px; background: #edf1e6; border: 1px solid #e2e8d8; }
+  .play-panel-tab { min-width: 0; min-height: 34px; flex: 1; font-size: 11px; font-weight: 600; color: #8a987a; border-radius: 8px; padding: 7px 5px; border: 1px solid transparent; }
+  .play-panel-tab .tab-label { display: flex; align-items: center; justify-content: center; gap: 6px; }
+  .play-panel-tab.active { color: #587548; background: #fffefb; border-color: #e0e7d4; box-shadow: 0 2px 3px #344d4105; }
+  .play-panel-tab.delete-drop-active { color: #a2745a; background: #fae5d6; border: 1px dashed #d3a182; }
+  .play-panel-tab.delete-drop-active .tab-label { display: none; }
+  .play-panel-tab.delete-drop-active .tab-delete-label { display: flex; align-items: center; justify-content: center; gap: 5px; }
+  .play-page .game-grid { display: flex; min-height: 0; }
+  .play-page .game-panel { width: 100%; min-height: 0; grid-row: auto; }
+  .play-page .game-grid[data-mobile-panel='board'] > :not(.board-panel),
+  .play-page .game-grid[data-mobile-panel='toolbox'] > :not(.toolbox-panel),
+  .play-page .game-grid[data-mobile-panel='workspace'] > :not(.workspace-panel) { display: none; }
+  .play-page .panel-heading { height: 49px; min-height: 0; padding: 8px 14px; }
+  .play-page .panel-heading h2 { font-size: 13px; }
+  .play-page .panel-heading p { font-size: 8px; }
+  .play-page .panel-heading .panel-step { display: block; }
+  .play-page .panel-icon { width: 29px; height: 29px; border-radius: 9px; }
+  .play-page .panel-icon svg { width: 17px; }
+  .play-page .board-panel-body { grid-template-rows: minmax(0, 1fr); padding: 8px 13px 10px; gap: 5px; }
+  .play-page .board-panel .player-label, .play-page .board-panel .your-turn { font-size: 10px; }
+  .play-page .board-panel .player-label small, .play-page .board-panel .your-turn small { font-size: 8px; }
+  .play-page .board-action-row .hint-button { width: auto; min-width: 120px; min-height: 31px; font-size: 11px; }
+  .play-page .board-panel .side-label { display: flex; font-size: 9px; }
+  .play-page .toolbox-body { padding: 12px 15px; }
+  .play-page .piece-picker { justify-content: flex-start; gap: 7px; }
+  .play-page .piece-tab { min-width: 44px; max-width: 58px; height: 51px; }
+  .play-page .piece-tab .chess-piece { width: 30px; height: 30px; }
+  .play-page .piece-tab span { font-size: 8px; }
+  .play-page .toolbox-divider { margin: 10px 0; }
+  .play-page .small-eyebrow, .play-page .piece-tip { display: none; }
+  .play-page .selected-piece-card { padding: 8px 11px; }
+  .play-page .selected-piece-card h3 { font-size: 14px; }
+  .play-page .selected-piece-card p { font-size: 9px; gap: 7px; }
+  .play-page .coordinate-tag { font-size: 9px; }
+  .play-page .selected-piece-icon, .play-page .selected-piece-icon svg { height: 36px; width: 36px; }
+  .play-page .drag-instruction { font-size: 9px; margin: 12px 0 10px; }
+  .play-page .move-options { max-height: none; gap: 17px; }
+  .play-page .move-block { min-height: 53px; gap: 10px; padding: 9px 12px; }
+  .play-page .move-block > strong { font-size: 14px; }
+  .play-page .move-block .chess-piece { width: 32px; height: 32px; }
+  .play-page .block-direction.knight-direction { font-size: 16px; }
+  .play-page .block-direction { font-size: 23px; }
+  .play-page .step-bubble, .play-page .destination-bubble { font-size: 12px; min-height: 27px; min-width: 28px; }
+  .play-page .to-arrow { display: block; }
+  .play-page .workspace-toolbar { padding: 5px 12px; height: 37px; flex-basis: 37px; }
+  .play-page .workspace-toolbar .icon-button { width: 30px; height: 27px; }
+  .play-page .block-count { font-size: 10px; }
+  .play-page .workspace-empty { top: 120px; bottom: 10px; gap: 9px; }
+  .play-page .workspace-empty strong { font-size: 13px; }
+  .play-page .workspace-empty span { font-size: 10px; max-width: 220px; }
+  .play-page .workspace-empty svg { width: 82px; height: 41px; }
+  .play-page .workspace-controls { padding: 0 13px 10px; }
+  .play-page .plan-mode-row { padding: 7px 0; }
+  .play-page .plan-toggle { font-size: 10px; min-height: 20px; }
+  .play-page .run-controls { flex-wrap: nowrap; gap: 8px; }
+  .play-page .run-button { height: 41px; font-size: 14px; }
+  .play-page .step-button, .play-page .reset-button { height: 41px; width: 39px; }
+  .play-page .control-note { font-size: 9px; margin-top: 7px; }
+  .play-page .program-row { min-height: 29px; font-size: 10px; }
+  .play-page .program-row > button { width: 29px; height: 28px; }
+  .play-page .feedback-card { min-height: 65px; padding: 9px 12px 9px 69px; gap: 8px; }
+  .play-page .feedback-mascot { left: 5px; height: 70px; width: 56px; }
+  .play-page .feedback-mascot .mascot { width: 70px; height: 76px; left: -9px; }
+  .play-page .feedback-label { display: none; }
+  .play-page .feedback-copy h3 { font-size: 14px; }
+  .play-page .feedback-copy p { font-size: 10px; -webkit-line-clamp: 2; }
+  .play-page .feedback-card .retry-button { min-width: 67px; padding: 8px; font-size: 9px; }
+  .play-page .feedback-decor { display: none; }
+  .play-page .play-footer { gap: 8px; min-height: 33px; }
+  .play-page .engine-status { font-size: 7px; max-width: 48%; line-height: 1.5; }
+  .play-page .play-footer > span { display: none; }
+  .mobile-quick-controls { display: flex; align-items: center; gap: 7px; margin-left: auto; }
+  .play-page .mobile-quick-controls .run-button { height: 33px; min-width: 105px; padding: 0 12px; border-radius: 8px; font-size: 11px; gap: 6px; box-shadow: 0 2px #52784f; }
+  .play-page .mobile-quick-controls .run-button > svg { margin: 0; }
+  .play-page .mobile-quick-controls .reset-button { height: 33px; width: 33px; border-radius: 8px; }
+  .play-footer[data-mobile-panel='workspace'] .mobile-quick-controls { display: none; }
+  .play-page .play-footer[data-mobile-panel='workspace'] { min-height: 12px; }
+}
+
+@media (max-width: 900px) and (max-height: 720px) {
+  .play-page { gap: 7px; padding-top: 8px; grid-template-rows: auto auto minmax(0, 1fr); }
+  .play-page .lesson-kicker { display: none; }
+  .play-page .lesson-heading h1 { font-size: 21px; margin: 0 0 3px; }
+  .play-page .lesson-heading p { font-size: 10px; -webkit-line-clamp: 1; }
+  .play-page .panel-heading { height: 43px; }
+  .play-page .panel-heading p { display: none; }
+  .play-page .board-panel-body { grid-template-rows: minmax(0, 1fr); }
+  .play-page .player-label small, .play-page .your-turn small { display: none; }
+  .play-page .feedback-card { min-height: 52px; padding-top: 7px; padding-bottom: 7px; }
+  .play-page .feedback-copy h3 { font-size: 12px; }
+  .play-page .feedback-copy p { font-size: 9px; -webkit-line-clamp: 1; }
+  .play-page .workspace-empty svg { display: none; }
+}
+
