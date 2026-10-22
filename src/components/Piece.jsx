@@ -10,7 +10,31 @@ const shapes = {
 export function Piece({ type = 'n', color = 'w', className = '', size = 48, ...props }) {
   return <svg viewBox="0 0 48 48" width={size} height={size} className={`chess-piece ${className}`} style={{ '--piece-stroke': color === 'w' ? '#46564c' : '#253c36' }} aria-hidden="true" {...props}><g fill={color === 'w' ? '#fffcef' : '#354e45'} stroke={color === 'w' ? '#46564c' : '#203a31'} strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">{shapes[type]}</g>{color === 'b' && <path d="M17 37h14" stroke="#8eaa98" strokeWidth="1.3" strokeLinecap="round"/>}</svg>;
 }
+// Queenie: a caped chess queen with a gold crown, drawn in the app's forest, cream, and orange palette.
 export function Mascot({ className = '', happy = false }) {
-  return <svg viewBox="0 0 120 126" className={`mascot ${className}`} aria-hidden="true"><ellipse cx="62" cy="116" rx="41" ry="7" fill="#d8e1cd"/><path d="m25 107 5-16c-6-21-3-49 11-65l-3-13 15 7 13-4c20 10 26 26 20 46l8 30 6 15Z" fill="#f5dcaa" stroke="#5e7056" strokeWidth="3.5" strokeLinejoin="round"/><path d="m41 27 8 11-17 17-9 15 7 10 24-5-7 17h39" fill="#fff5d6" stroke="#5e7056" strokeWidth="3.5" strokeLinejoin="round"/><path d="m65 23 12 11-8 7 11 9-9 8 10 8" fill="none" stroke="#cb9861" strokeWidth="5" strokeLinecap="round"/><circle cx="52" cy="48" r="3.5" fill="#3d5144"/><path d={happy ? 'M42 65q8 10 15-2' : 'M41 66q5 5 10 0'} fill="none" stroke="#5e7056" strokeWidth="2.8" strokeLinecap="round"/><ellipse cx="59" cy="59" rx="5" ry="3" fill="#efa887"/><path d="M25 107h75l-4 9H21z" fill="#7d9c77" stroke="#5e7056" strokeWidth="3.5"/><path d="m11 31 3-7 3 7 7 3-7 3-3 7-3-7-7-3zM102 71l2-5 2 5 5 2-5 2-2 5-2-5-5-2z" fill="#efbb53"/></svg>;
+  const ink = '#304a3c', ivory = '#fffcef', gold = '#efbb53', shade = '#e5e9de', forest = '#285e4b', orange = '#ee955b';
+  const eye = (cx, look) => <g><ellipse cx={cx} cy="45" rx="5.5" ry={happy ? 3.6 : 4.2} fill="#fff" strokeWidth="2"/><circle cx={cx + look} cy="45.3" r="3.1" fill={forest} stroke="none"/><circle cx={cx + look} cy="45.3" r="1.3" fill={ink} stroke="none"/><circle cx={cx + look - 1} cy="44" r=".9" fill="#fff" stroke="none"/></g>;
+  return <svg viewBox="0 0 120 126" className={`mascot ${className}`} aria-hidden="true" stroke={ink} strokeWidth="3" strokeLinejoin="round" strokeLinecap="round">
+    <ellipse cx="60" cy="119" rx="40" ry="5" fill="#d8e1cd" stroke="none"/>
+    <path d="M40 62c-12 10-18 30-26 48l16-4 6 7 24-9 24 9 6-7 16 4c-8-18-14-38-26-48Z" fill={orange}/>
+    <path d="M44 65c-8 12-14 29-20 41l10-3 6 6 20-8 20 8 6-6 10 3c-6-12-12-29-20-41Z" fill={forest} strokeWidth="2"/>
+    <path d="M50 66c0 14-3 24-8 32h36c-5-8-8-18-8-32Z" fill={ivory}/>
+    <path d="M64 68c1 12 3 21 7 28h4c-4-8-6-17-6-28Z" fill={shade} stroke="none"/>
+    <rect x="38" y="96" width="44" height="6" rx="3" fill={gold}/>
+    <path d="M40 102h40q3 5 10 7H30q7-2 10-7Z" fill={ivory}/>
+    <rect x="26" y="109" width="68" height="8" rx="4" fill={ivory}/><path d="M30 113h60" stroke={shade} strokeWidth="2"/>
+    <ellipse cx="60" cy="63" rx="22" ry="5.5" fill={ivory}/>
+    <rect x="44" y="54" width="32" height="6" rx="3" fill={gold}/>
+    <path d="M37 32q23-6 46 0l-7 24q-16 3-32 0Z" fill={ivory}/>
+    <path d="M72 34q5 0 8-1l-5 20q-2 1-5 1Z" fill={shade} stroke="none"/>
+    <rect x="57" y="13" width="6" height="7" rx="1.5" fill={ink}/><circle cx="60" cy="9" r="6" fill={ivory}/><circle cx="58" cy="7" r="1.6" fill="#fff" stroke="none"/>
+    <path d="M36 34 37 17l9 8 7-12 7 9 7-9 7 12 9-8 1 17q-24-6-48 0Z" fill={gold}/>
+    <path d="m44 30 2-4m14 2v-4m14 6-2-4" stroke="#fff3c9" strokeWidth="1.8"/>
+    {eye(50, 1)}{eye(70, -1)}
+    <path d={happy ? 'M43 38q6-4 12-1M77 38q-6-4-12-1' : 'M43 37l13 4M77 37l-13 4'} fill="none" strokeWidth="3.4"/>
+    {happy && <path d="M55 51q5 4 10 0" fill="none" strokeWidth="2.4"/>}
+    <ellipse cx="45" cy="51" rx="3.5" ry="2" fill="#efa887" stroke="none"/><ellipse cx="75" cy="51" rx="3.5" ry="2" fill="#efa887" stroke="none"/>
+    <path d="m11 31 3-7 3 7 7 3-7 3-3 7-3-7-7-3zM104 50l2-5 2 5 5 2-5 2-2 5-2-5-5-2z" fill={gold} stroke="none"/>
+  </svg>;
 }
 export function PieceBadge({ type, color = 'w', className = '' }) { return <span className={`piece-badge ${className}`}><Piece type={type} color={color}/></span>; }

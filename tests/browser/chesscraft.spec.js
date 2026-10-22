@@ -70,7 +70,7 @@ test('a multi-turn lesson continues after the defense and completes only at mate
   await expect(page.getByRole('button',{name:'a3 White Queen',exact:true})).toBeVisible();
 });
 
-test('teacher imports PGN variations, saves, duplicates, edits and deletes a puzzle',async({page})=>{
+test('teacher imports PGN variations and saves it as a new level',async({page})=>{
   const consoleErrors=[];page.on('console',message=>{if(message.type()==='error')consoleErrors.push(message.text());});
   await english(page);
   await page.getByRole('button',{name:'Add puzzle',exact:true}).click();
@@ -81,17 +81,9 @@ test('teacher imports PGN variations, saves, duplicates, edits and deletes a puz
   await page.getByLabel('Puzzle title',{exact:true}).fill('Browser tested puzzle');
   await page.getByLabel('I have reviewed and confirmed the objective').check();
   await page.getByRole('button',{name:'Save & play',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Browser tested puzzle',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Puzzle library',exact:true}).click();
-  await page.getByRole('button',{name:'Duplicate Browser tested puzzle',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Browser tested puzzle (copy)',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Edit Browser tested puzzle (copy)',exact:true}).click();
-  await page.getByLabel('Puzzle title',{exact:true}).fill('Edited adventure');
-  await page.getByRole('button',{name:'Save',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Edited adventure',exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'Delete Edited adventure',exact:true}).click();
-  await page.getByRole('button',{name:'Delete',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Edited adventure',exact:true})).toHaveCount(0);
+  await expect(page.getByRole('heading',{name:'Checkmate the opponent’s king in 1 move!',exact:true})).toBeVisible();
+  const level=page.getByRole('navigation',{name:'Puzzle levels'}).getByRole('button',{name:'Lesson 10: Browser tested puzzle',exact:true});
+  await expect(level).toHaveAttribute('aria-current','step');
   expect(consoleErrors).toEqual([]);
 });
 
@@ -116,17 +108,14 @@ test('black side, castling, promotion choices, engine MultiPV, and mobile layout
   await page.screenshot({path:'test-results/chesscraft-mobile.png',fullPage:true});
 });
 
-test('desktop and teacher views have no runtime errors or missing font assets',async({page})=>{
+test('desktop view has no runtime errors or missing font assets, and sound starts on',async({page})=>{
   const errors=[],failed=[];page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)failed.push(`${r.status()} ${r.url()}`);});
   await page.goto('/');
-  await expect(page.getByRole('heading',{name:'A knight’s little leap'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:'Help your knight reach f3!'})).toBeVisible();
   await page.evaluate(()=>document.fonts.ready);
   await page.screenshot({path:'test-results/chesscraft-desktop.png',fullPage:true});
-  await page.getByRole('button',{name:'Teacher room',exact:true}).click();
-  await expect(page.getByRole('heading',{name:'Learning settings'})).toBeVisible();
-  await page.getByRole('switch',{name:'Reduced motion'}).click();
-  await expect(page.getByRole('switch',{name:'Reduced motion'})).toBeChecked();
-  await page.screenshot({path:'test-results/chesscraft-teacher.png',fullPage:true});
+  await expect(page.getByRole('button',{name:'Sound on',exact:true})).toHaveAttribute('aria-pressed','true');
+  await expect(page.getByRole('button',{name:'Teacher room'})).toHaveCount(0);
   expect(errors).toEqual([]);expect(failed).toEqual([]);
 });
 

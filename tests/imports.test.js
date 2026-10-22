@@ -95,3 +95,21 @@ test('network and rate-limit failures do not retry through a backend or get cach
   await assert.rejects(fetchPublicSource(url), error => error.code === 'rateLimit');
   assert.deepEqual(requests, [url, url]);
 });
+
+test('recorded lines name promotions, won material, and theme-tagged tactics as goals', async () => {
+  const { inferSourceObjective } = await import('../src/services/continuation.js');
+  assert.deepEqual(inferSourceObjective('7k/P7/5K2/8/8/8/8/8 w - - 0 1', ['a7a8q']), { type: 'reach', piece: 'q', target: 'a8', promotion: true, moves: 1 });
+  assert.deepEqual(inferSourceObjective('r3k3/8/8/8/8/8/8/R3K3 w - - 0 1', ['a1a8']), { type: 'capture', piece: 'r', moves: 1 });
+  assert.equal(inferSourceObjective('r3k3/1b6/8/8/8/8/8/R3K3 w - - 0 1', ['a1a8', 'b7a8']).type, 'strategic');
+  assert.deepEqual(inferSourceObjective('4k3/3n4/8/8/8/8/8/4KB2 w - - 0 1', ['f1b5'], ['pin', 'short']), { type: 'pin', moves: 1 });
+  assert.equal(inferSourceObjective('4k3/3n4/8/8/8/8/8/4KB2 w - - 0 1', ['f1b5']).type, 'strategic');
+});
+
+test('FEN previews read a material-winning goal from the engine line', async () => {
+  const puzzle = importFen('r3k3/8/8/8/8/8/8/R3K3 w - - 0 1');
+  const preview = await analyzeImport(puzzle, { async analyze() {
+    return { bestmove: 'a1a8', variations: [{ pv: ['a1a8', 'e8e7', 'a8a7'], score: { type: 'cp', value: 520 }, bound: false }] };
+  } });
+  assert.deepEqual(preview.objective, { type: 'capture', piece: 'r', moves: 1 });
+  assert.equal(preview.needsConfirmation, true);
+});

@@ -15,11 +15,18 @@ import {
   Trophy,
   Route,
   Trash2,
+  Target,
 } from "lucide-react";
 
-import { Chess, ownPieces, legalMove, fromUci, toUci } from "../services/chess.js";
+import {
+  Chess,
+  ownPieces,
+  legalMove,
+  fromUci,
+  toUci,
+} from "../services/chess.js";
 import { opponentMove } from "../services/validation.js";
-import { goalAchieved } from "../services/objectives.js";
+import { goalAchieved, objectiveDescription } from "../services/objectives.js";
 import { recordedContinuation } from "../services/continuation.js";
 import { useChessLesson } from "../hooks/useChessLesson.js";
 import { Toolbox } from "../components/Toolbox.jsx";
@@ -37,14 +44,20 @@ export function Play({
   onAttempt,
   onNotice,
 }) {
-  const game = useChessLesson(puzzle, { ...settings, onComplete, onAttempt, onNotice });
+  const game = useChessLesson(puzzle, {
+    ...settings,
+    onComplete,
+    onAttempt,
+    onNotice,
+  });
   const workspace = useRef(null),
     [program, setProgram] = useState([]),
     [help, setHelp] = useState(false),
     [celebrate, setCelebrate] = useState(true);
   const toolboxPanel = useRef(null),
     toolboxTab = useRef(null),
-    boardStage = useRef(null);
+    boardStage = useRef(null),
+    levels = useRef(null);
   const [mobilePanel, setMobilePanel] = useState("board");
   const [planMode, setPlanMode] = useState(false),
     [planning, setPlanning] = useState(false),
@@ -52,10 +65,8 @@ export function Play({
     [previewLast, setPreviewLast] = useState(null);
   const flipped = puzzle.studentColor === "b";
   const currentIndex = puzzles.findIndex((p) => p.id === puzzle.id);
-  const title = puzzle.title;
-  const description =
-    puzzle.description ||
-    "Build a plan for this mission. There may be more than one smart way!";
+  const goal = objectiveDescription(puzzle.objective);
+  const goalMoves = puzzle.objective.moves || 1;
   const activeFen =
     planMode && previewFen && !game.busy ? previewFen : game.fen;
   const activeGame = useMemo(() => new Chess(activeFen), [activeFen]);
@@ -75,6 +86,31 @@ export function Play({
     observer.observe(stage);
     return () => observer.disconnect();
   }, []);
+  // Keep the current level centered when the row resizes, and fade whichever
+  // edge has more levels hidden.
+  useEffect(() => {
+    const nav = levels.current;
+    if (!nav) return;
+    const edges = () => {
+      nav.dataset.moreLeft = nav.scrollLeft > 1;
+      nav.dataset.moreRight =
+        nav.scrollLeft + nav.clientWidth < nav.scrollWidth - 1;
+    };
+    const center = () => {
+      const current = nav.querySelector(".current");
+      if (current)
+        nav.scrollLeft =
+          current.offsetLeft - (nav.clientWidth - current.offsetWidth) / 2;
+      edges();
+    };
+    const observer = new ResizeObserver(center);
+    observer.observe(nav);
+    nav.addEventListener("scroll", edges, { passive: true });
+    return () => {
+      observer.disconnect();
+      nav.removeEventListener("scroll", edges);
+    };
+  }, [puzzles.length]);
   useEffect(() => {
     if (!planMode || game.busy || game.status === "complete") {
       setPreviewFen(null);
@@ -96,10 +132,25 @@ export function Play({
             projected.turn() !== puzzle.studentColor
           )
             break;
-          const continuation = recordedContinuation(puzzle, projected, studentMoves, toUci(block.move));
+          const continuation = recordedContinuation(
+            puzzle,
+            projected,
+            studentMoves,
+            toUci(block.move),
+          );
           last = projected.move(block.move);
           studentMoves++;
-          if (projected.isGameOver() || goalAchieved(projected, puzzle.objective, puzzle.studentColor, last) || (continuation?.recordedStrategy && continuation.line.length === 1)) break;
+          if (
+            projected.isGameOver() ||
+            goalAchieved(
+              projected,
+              puzzle.objective,
+              puzzle.studentColor,
+              last,
+            ) ||
+            (continuation?.recordedStrategy && continuation.line.length === 1)
+          )
+            break;
           const answer = await opponentMove({
             game: projected,
             puzzle,
@@ -186,34 +237,17 @@ export function Play({
         <span>{"Meet the pieces"}</span>
       </div>
       <div className="lesson-heading">
-        <div className="lesson-copy">
-          <div className="lesson-kicker">
-            <span className="tiny-star" aria-hidden="true">
-              ✦
+        <div className="lesson-goal">
+          <span className="goal-icon" aria-hidden="true">
+            <Target size={19} />
+          </span>
+          <h1>{goal}</h1>
+          {puzzle.objective.type !== "mate" && (
+            <span className="goal-moves">
+              {goalMoves} {goalMoves === 1 ? "move" : "moves"}
             </span>
-            {"A DISCOVERY IN EVERY MOVE"}
-          </div>
-          <h1>
-            {title}
-            <span className="title-sparkle" aria-hidden="true">
-              ✧
-            </span>
-          </h1>
-          <p>{description}</p>
+          )}
         </div>
-        <nav className="lesson-levels" aria-label={"Puzzle levels"}>
-          {puzzles.slice(0, 9).map((p, i) => (
-            <button
-              key={p.id}
-              className={`path-level ${puzzle.id === p.id ? "current" : ""} ${progress[p.id]?.completed ? "complete" : ""}`}
-              onClick={() => openLesson(p)}
-              aria-label={`${"Lesson"} ${i + 1}: ${p.title}${progress[p.id]?.completed ? `, ${"completed"}` : ""}`}
-              aria-current={puzzle.id === p.id ? "step" : undefined}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </nav>
         <button className="help-button" onClick={() => setHelp(true)}>
           <HelpCircle size={18} />
           <span>{"How to play"}</span>
@@ -372,10 +406,28 @@ export function Play({
             <span className="panel-icon green-icon">
               <Flag size={20} />
             </span>
-            <div>
-              <h2>{"Playground"}</h2>
-            </div>
-            <span className="panel-step">03</span>
+            <h2 className="sr-only">{"Playground"}</h2>
+            <nav
+              className="lesson-levels"
+              aria-label={"Puzzle levels"}
+              ref={levels}
+              onWheel={(event) => {
+                if (Math.abs(event.deltaY) > Math.abs(event.deltaX))
+                  event.currentTarget.scrollLeft += event.deltaY;
+              }}
+            >
+              {puzzles.map((p, i) => (
+                <button
+                  key={p.id}
+                  className={`path-level ${puzzle.id === p.id ? "current" : ""} ${progress[p.id]?.completed ? "complete" : ""}`}
+                  onClick={() => openLesson(p)}
+                  aria-label={`${"Lesson"} ${i + 1}: ${p.title}${progress[p.id]?.completed ? `, ${"completed"}` : ""}`}
+                  aria-current={puzzle.id === p.id ? "step" : undefined}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </nav>
           </div>
           <div className="board-panel-body">
             <div className="board-stage" ref={boardStage}>

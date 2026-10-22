@@ -67,7 +67,7 @@ export function useChessLesson(puzzle, { sound, reducedMotion, exploration, onCo
     const command = fromUci(uci || '');
     if (!legalMove(game, command)) throw new Error('No legal engine reply');
     await delay(callbacks.current.reducedMotion ? 80 : 450, signal);
-    const move = game.move(command); publish(move); playSound(callbacks.current.sound);
+    const move = game.move(command); publish(move); playSound(callbacks.current.sound, move.captured ? 'capture' : 'move');
     await delay(callbacks.current.reducedMotion ? 100 : 650, signal);
     return move;
   }
@@ -102,7 +102,7 @@ export function useChessLesson(puzzle, { sound, reducedMotion, exploration, onCo
         if (result.kind === 'uncertain') { setFeedback('uncertain'); setStatus('uncertain'); callbacks.current.onNotice?.(result.error ? 'Move checking is unavailable. Try Run again.' : 'This move needs a closer look. Try another move or reset the board.'); break; }
         retryRef.current = snapshot;
         setStatus('running');
-        const played = game.move(result.move); publish(played); playSound(callbacks.current.sound);
+        const played = game.move(result.move); publish(played); playSound(callbacks.current.sound, played.captured ? 'capture' : 'move');
         setFeedback(result.kind);
         await delay(callbacks.current.reducedMotion ? 120 : 750, signal);
         if (result.kind === 'incorrect') {

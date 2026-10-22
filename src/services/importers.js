@@ -53,7 +53,7 @@ export function importPgn(text, { startPly, source } = {}) {
     return line;
   }
   const solution = walk(sourceMoves.slice(ply), initialFen);
-  const objective = inferSourceObjective(initialFen, solution);
+  const objective = inferSourceObjective(initialFen, solution, [tags.Event, tags.ChapterName].filter(Boolean));
   const puzzle = basePuzzle(initialFen, { title: tags.Event && tags.Event !== '?' ? tags.Event : '', select: solution[0]?.slice(0, 2), solution, variations, solutionMap, objective, recordedObjective: { ...objective }, source: source || { type: 'pgn', raw: text, tags }, needsConfirmation: objective.type === 'strategic', history, originFen, startPly: ply, needsStartPly: isHistory });
   return puzzle;
 }
@@ -79,7 +79,7 @@ export function importLichessData(data, url) {
   try {
     for (const uci of solution) { const key = positionKey(verify.fen()); verify.move(fromUci(uci)); (solutionMap[key] ||= []).push(uci); }
   } catch (error) { throw new ImportError('invalidSourceSolution', error.message); }
-  const objective = inferSourceObjective(initialFen, solution);
+  const objective = inferSourceObjective(initialFen, solution, data.puzzle.themes || []);
   return basePuzzle(initialFen, { title: `Lichess · ${data.puzzle.id}`, select: solution[0]?.slice(0, 2), solution, variations: [solution], solutionMap, objective, recordedObjective: { ...objective }, needsConfirmation: objective.type === 'strategic', theme: data.puzzle.themes?.join(', ') || '', difficulty: data.puzzle.rating < 1200 ? 1 : data.puzzle.rating < 1800 ? 2 : 3, source: { type: 'lichess', url, puzzleId: data.puzzle.id, initialPly, rating: data.puzzle.rating, themes: data.puzzle.themes, gamePgn: data.game.pgn } });
 }
 
@@ -110,6 +110,14 @@ export async function importUrl(text, { signal, startPly } = {}) {
   throw new ImportError(host === 'chess.com' ? 'chessComRestricted' : 'unsupportedUrl');
 }
 
+// Read a goal from the engine's main line. Stop after an opponent reply so a
+// capture that is immediately won back does not count as winning material.
+function engineObjective(puzzle, best) {
+  if (!best?.pv?.length || best.bound || best.score.type !== 'cp' || best.score.value < 150) return puzzle.objective;
+  const inferred = inferSourceObjective(puzzle.initialFen, best.pv.slice(0, Math.min(8, best.pv.length - best.pv.length % 2)));
+  return inferred.type === 'strategic' ? puzzle.objective : inferred;
+}
+
 export async function analyzeImport(puzzle, engineService, signal) {
   if (signal?.aborted) throw new DOMException('Import cancelled', 'AbortError');
   // Recorded moves have already been checked for legality by the importer.
@@ -117,6 +125,6 @@ export async function analyzeImport(puzzle, engineService, signal) {
   if (puzzle.solution.length || puzzle.needsStartPly) return puzzle;
   const analysis = await engineService.analyze(puzzle.initialFen, { depth: 19, movetime: 1800, multiPV: 5, signal });
   const best = analysis.variations[0];
-  const inferred = best?.score.type === 'mate' && best.score.value > 0 && !best.bound ? { type: 'mate', moves: best.score.value } : puzzle.objective;
+  const inferred = best?.score.type === 'mate' && best.score.value > 0 && !best.bound ? { type: 'mate', moves: best.score.value } : engineObjective(puzzle, best);
   return { ...puzzle, select: puzzle.select || analysis.bestmove?.slice(0, 2), objective: puzzle.source.type === 'fen' ? inferred : puzzle.objective, enginePreview: analysis, needsConfirmation: puzzle.needsConfirmation || puzzle.source.type === 'fen' };
 }

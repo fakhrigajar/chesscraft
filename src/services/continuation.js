@@ -3,17 +3,37 @@ import { goalAchieved } from './objectives.js';
 
 const indexes = new WeakMap();
 
-export function inferSourceObjective(initialFen, line) {
+const VALUES = { p: 1, n: 3, b: 3, r: 5, q: 9 };
+// Words in Lichess themes or PGN headers that name a goal we can verify.
+const THEME_GOALS = [[/fork/i, 'fork'], [/pin/i, 'pin'], [/skewer/i, 'skewer'], [/discover/i, 'discovery']];
+
+/** Reads what a recorded line achieves: mate, a named tactic, promotion, or won material.
+ * `hints` (Lichess themes, PGN Event names) only select goals the line really reaches. */
+export function inferSourceObjective(initialFen, line, hints = []) {
   const game = new Chess(initialFen), side = game.turn();
-  let studentMoves = 0, queenCapture = false, last;
+  const hinted = THEME_GOALS.filter(([pattern]) => hints.some(hint => pattern.test(hint))).map(([, type]) => type);
+  let studentMoves = 0, queenCapture = false, last, tactic = null, promotion = null, balance = 0, best = null;
   for (const command of line) {
     last = game.move(typeof command === 'string' ? fromUci(command) : command);
-    if (last.color === side) { studentMoves++; if (last.captured === 'q') queenCapture = true; }
+    if (last.color !== side) { balance -= VALUES[last.captured] || 0; continue; }
+    studentMoves++;
+    if (last.captured === 'q') queenCapture = true;
+    if (last.captured && (!best || VALUES[last.captured] > VALUES[best.piece])) best = { piece: last.captured, moves: studentMoves };
+    balance += (VALUES[last.captured] || 0) + (last.promotion ? VALUES[last.promotion] - 1 : 0);
+    if (last.promotion && !promotion) promotion = { type: 'reach', piece: last.promotion, target: last.to, promotion: true, moves: studentMoves };
+    for (const type of tactic ? [] : hinted) {
+      const goal = { type, ...(type === 'fork' ? { piece: last.piece } : {}) };
+      if (goalAchieved(game, goal, side, last)) { tactic = { ...goal, moves: studentMoves }; break; }
+    }
   }
   const moves = Math.max(1, studentMoves);
   if (game.isCheckmate() && game.turn() !== side) return { type: 'mate', moves };
+  if (tactic) return tactic;
   if (queenCapture) return { type: 'capture', piece: 'q', moves };
+  if (promotion && game.get(promotion.target)?.color === side) return promotion;
   if (last?.color === side && goalAchieved(game, { type: 'fork', piece: last.piece }, side, last)) return { type: 'fork', piece: last.piece, moves };
+  // Winning at least a minor piece overall is a concrete goal; even trades are not.
+  if (best && balance >= 3) return { type: 'capture', piece: best.piece, moves: best.moves };
   return { type: 'strategic', moves, toleranceCp: 75 };
 }
 

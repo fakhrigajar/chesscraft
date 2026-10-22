@@ -48,7 +48,8 @@ test('the supplied study previews without an engine download and repeated previe
   await expect(page.getByLabel('Student move limit', { exact: true })).toHaveValue('12');
   await page.getByLabel('I have reviewed and confirmed the objective').check();
   await page.getByRole('button', { name: 'Save & play', exact: true }).click();
-  await expect(page.getByRole('heading', { name: 'The Windmill. Puzzles.: Exercise # 1', exact: true })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Capture the opponent’s queen!', exact: true })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Lesson 10: The Windmill. Puzzles.: Exercise # 1', exact: true })).toHaveAttribute('aria-current', 'step');
   expect(await page.evaluate(() => JSON.parse(localStorage.getItem('chesscraft.v1.puzzles'))[0].objective.moves)).toBe(12);
 });
 

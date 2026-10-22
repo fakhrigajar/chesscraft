@@ -1568,7 +1568,7 @@ a {
 .site-footer > span svg {
   color: #dca58a;
 }
-.site-footer > button {
+.site-footer > .footer-brand {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -1576,7 +1576,7 @@ a {
   color: #89977b;
   font-weight: 600;
 }
-.site-footer > button span {
+.site-footer > .footer-brand span {
   color: #b7bdaa;
   font-weight: 400;
 }
@@ -2642,6 +2642,18 @@ a {
   font-size: 11px;
   font-weight: 500;
   color: #91a07f;
+}
+.progress-title {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.progress-title:hover {
+  color: #4f6b46;
+  text-decoration: underline;
 }
 .progress-item > div > span {
   display: block;
@@ -4194,7 +4206,7 @@ a {
   .site-footer > span {
     display: none;
   }
-  .site-footer > button {
+  .site-footer > .footer-brand {
     font-size: 8px;
     gap: 5px;
   }

@@ -39,7 +39,7 @@ The workspace supports destination dropdowns, drag reordering, accessible reorde
 
 Nine verified example lessons cover knight and pawn movement, queen capture, a knight fork, multiple mate-in-one solutions, a two-turn forced mate, Black to move, promotion, and castling.
 
-## Teacher tools and imports
+## Imports
 
 - **PGN**: paste or upload a single PGN. FEN/SetUp tags, comments, annotations, promotions, castling, and recursive variations are parsed, and every imported variation is checked for legal moves. A complete game's history requires an explicit starting-ply selection; it is never silently treated as the puzzle solution.
 - **FEN**: validates the position, analyzes candidate moves with Stockfish, and requires teacher confirmation of the inferred objective. A FEN is never treated as a recorded solution.
@@ -47,13 +47,13 @@ Nine verified example lessons cover knight and pawn movement, queen capture, a k
 - **Lichess studies**: public `/study/{studyId}/{chapterId}` links use the official PGN export. A study export containing multiple games asks for a single chapter.
 - **Chess.com**: supports the current public daily puzzle through the documented PubAPI and links containing explicit `fen` or `pgn` query parameters. Arbitrary puzzle/problem links do not expose a documented solution API; the app explains this and offers PGN/FEN import.
 
-The importer shows a position preview, source information, objective, difficulty, move limit, and child-facing explanation before saving. Recorded solutions are checked for legal moves and previewed immediately, without waiting for Stockfish. FEN-only positions still get engine analysis and candidate moves. Successful source downloads are cached in memory for one minute (five minutes for a fixed Lichess puzzle), so reviewing a URL or selecting a different starting ply reuses the download. Requests can be cancelled and time out after ten seconds, including when the caller supplies its own cancellation signal.
+The importer shows a position preview, source information, objective, difficulty, and move limit before saving. Recorded solutions are checked for legal moves and previewed immediately, without waiting for Stockfish. FEN-only positions still get engine analysis and candidate moves. Successful source downloads are cached in memory for one minute (five minutes for a fixed Lichess puzzle), so reviewing a URL or selecting a different starting ply reuses the download. Requests can be cancelled and time out after ten seconds, including when the caller supplies its own cancellation signal.
 
 Teacher overrides include target squares, piece types, and strategic evaluation tolerances. Candidate moves are proposals, not claims of verified objective equivalence.
 
-The library supports search, categories, play, duplication, and editing/deletion of custom lessons. Teacher settings include sound, reduced motion, and exploration mode. Local progress is stored independently of puzzle definitions. The teacher room is a local management interface, not an authenticated permission boundary.
+Every saved puzzle becomes a new level after the built-in lessons; the level row above the board scrolls sideways. Sound is on by default and can be muted from the header; that choice is remembered. Local progress is stored independently of puzzle definitions.
 
-Puzzles, settings, progress, current game history, and workspaces persist in **LocalStorage** under `chesscraft.v1.*`. Backups can be exported/imported as JSON in the teacher room. There is no existing database in this checkout, and no student information is sent to an external engine service.
+Puzzles, settings, progress, current game history, and workspaces persist in **LocalStorage** under `chesscraft.v1.*`. There is no existing database in this checkout, and no student information is sent to an external engine service.
 
 Older imported lessons affected by the accidental eight-move save cap recover their source goal's move count when loaded. Current imports and subsequent teacher overrides retain their chosen limits.
 
@@ -95,7 +95,7 @@ Run reports empty/exhausted programs, stale blocks, and unavailable or inconclus
 | `src/services/importers.js` | PGN, FEN, official public URL imports, and objective inference |
 | `src/services/publicSource.js` | Direct public API downloads, short-lived caching, cancellation, and timeouts |
 | `src/services/storage.js` | Persistence and backups |
-| `src/pages/` | Student adventure, home, library, import preview, and teacher room |
+| `src/pages/` | Student adventure, home, and import preview |
 
 ## Verification
 
@@ -107,7 +107,7 @@ npm run build
 
 The rules/import suite covers the requested chess scenarios, alternative mates and captures, PGN variations and game histories, real Lichess response semantics, special moves, Black to move, objective proof uncertainty, score normalization, source endpoint validation, caching, cancellation, and timeouts.
 
-The browser suite uses a real local Stockfish worker. It covers Blockly creation/undo/redo, legal incorrect moves and replies, alternative mate, multi-turn and multi-block execution, stale dependencies, cancellation/reset, teacher import and library management, FEN confirmation, MultiPV, desktop/mobile layouts, and missing assets/runtime errors. URL tests use a captured real official response for repeatability; a live Lichess import was separately verified during development.
+The browser suite uses a real local Stockfish worker. It covers Blockly creation/undo/redo, legal incorrect moves and replies, alternative mate, multi-turn and multi-block execution, stale dependencies, cancellation/reset, teacher import, saved levels, FEN confirmation, MultiPV, desktop/mobile layouts, and missing assets/runtime errors. URL tests use a captured real official response for repeatability; a live Lichess import was separately verified during development.
 
 Browser tests use installed Chrome on macOS when present. Elsewhere set `PLAYWRIGHT_CHROME` to a Chrome/Chromium executable path or adjust `playwright.config.js` for your Playwright installation.
 

@@ -17,7 +17,7 @@ export function objectiveDescription(objective) {
   const text = {
     mate: `Checkmate the opponent’s king in ${objective.moves || 1} move${(objective.moves || 1) === 1 ? '' : 's'}!`,
     capture: `Capture the opponent’s ${piece}!`,
-    reach: `Help your ${piece} reach ${objective.target || '…'}!`,
+    reach: objective.promotion ? `Promote your pawn to a ${piece} on ${objective.target}!` : `Help your ${piece} reach ${objective.target || '…'}!`,
     fork: 'Attack two important enemy pieces with one move!',
     check: 'Attack the opponent’s king. Give check!',
     pin: 'Pin an enemy piece in front of its king!',
@@ -27,6 +27,14 @@ export function objectiveDescription(objective) {
     strategic: 'Find a strong plan. There may be more than one smart way!',
   };
   return text[objective.type] || text.strategic;
+}
+// A short name for a puzzle, used when the source does not give one.
+export function objectiveTitle(objective) {
+  const piece = PIECES[objective.piece]?.name.toLowerCase() || 'piece', moves = objective.moves || 1;
+  if (objective.type === 'mate') return `Checkmate in ${moves}`;
+  if (objective.type === 'capture') return `Win the ${piece}`;
+  if (objective.type === 'reach') return objective.promotion ? `A new ${piece}` : `${PIECES[objective.piece]?.name || 'Piece'} to ${objective.target}`;
+  return OBJECTIVES[objective.type] || OBJECTIVES.strategic;
 }
 export function objectiveMistakeExplanation(objective) {
   const explanations = {

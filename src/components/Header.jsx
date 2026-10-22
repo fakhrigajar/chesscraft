@@ -1,9 +1,7 @@
 import {
   Home,
   BookOpen,
-  Library,
   Plus,
-  GraduationCap,
   Volume2,
   VolumeX,
   Star,
@@ -24,7 +22,6 @@ export function Header({
   const links = [
     { id: "home", icon: Home, label: "Home" },
     { id: "play", icon: BookOpen, label: "Play & learn" },
-    { id: "library", icon: Library, label: "Puzzle library" },
   ];
   const go = (id) => {
     setMobileOpen(false);
@@ -69,24 +66,8 @@ export function Header({
             <Plus size={17} />
             {"Add puzzle"}
           </button>
-          <button
-            className="nav-link mobile-teacher-nav"
-            onClick={() => go("teacher")}
-          >
-            <GraduationCap size={18} />
-            {"Teacher room"}
-          </button>
         </nav>
         <div className="header-actions">
-          <button
-            className={`teacher-link ${route === "teacher" ? "active" : ""}`}
-            onClick={() => go("teacher")}
-          >
-            <GraduationCap size={18} />
-            <span>{"Teacher room"}</span>
-          </button>
-          <span className="header-divider" />
-          
           <button
             className="icon-button sound-toggle"
             onClick={() => updateSettings({ sound: !settings.sound })}

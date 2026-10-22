@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { lessons } from '../../src/data/lessons.js';
 
 async function openPlay(page, lesson = 'knight-hop') {
   await page.goto(`/#/play/${lesson}`);
@@ -78,14 +79,20 @@ test('help and completion dialogs are centered horizontally and vertically', asy
   await expectCentered(page, page.getByRole('dialog'));
 });
 
-test('library dialogs stay centered after scrolling down the page', async ({ page }) => {
-  await openPlay(page);
-  await page.getByRole('button', { name: 'Puzzle library', exact: true }).click();
-  const card = page.locator('.puzzle-card').filter({ has: page.getByRole('heading', { name: 'A safe castle for the king', exact: true }) });
-  await card.getByRole('button', { name: /^Duplicate / }).click();
-  await page.getByRole('button', { name: 'Edit A safe castle for the king (copy)', exact: true }).click();
-  await expectCentered(page, page.getByRole('dialog', { name: 'Edit', exact: true }));
-  expect(await page.evaluate(() => scrollY)).toBeGreaterThan(0);
+test('saved puzzles become levels that scroll sideways', async ({ page }) => {
+  const saved = Array.from({ length: 15 }, (_, i) => ({ ...lessons[0], id: `saved-${i}`, title: `Saved puzzle ${i + 1}`, source: { type: 'pgn' } }));
+  await page.addInitScript(puzzles => { if (!localStorage.getItem('chesscraft.v1.puzzles')) localStorage.setItem('chesscraft.v1.puzzles', JSON.stringify(puzzles)); }, saved);
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto('/#/play/saved-14');
+    await expect(page.locator('.chessboard-frame')).toBeVisible();
+    const levels = page.getByRole('navigation', { name: 'Puzzle levels' });
+    await expect(levels.getByRole('button')).toHaveCount(24);
+    await expect.poll(() => levels.evaluate(nav => nav.scrollWidth > nav.clientWidth)).toBe(true);
+    const navBox = await levels.boundingBox(), currentBox = await levels.locator('[aria-current=step]').boundingBox();
+    expect(currentBox.x).toBeGreaterThanOrEqual(navBox.x);
+    expect(currentBox.x + currentBox.width).toBeLessThanOrEqual(navBox.x + navBox.width);
+  }
 });
 
 test('a new block stays snapped in place throughout its arrival animation', async ({ page }) => {
